@@ -8,10 +8,11 @@ import { Box, Typography, Paper, Button, Chip } from "@mui/material";
 const WEBSOCKET_URL = "ws://localhost:8080/ws";
 
 const ChatPage = () => {
-  const { token, addMessage, logout, currentUser } = useChatStore();
+  const { token, addMessage, logout, currentUser } = useChatStore(); //从zustand获取状态
 
+  //useWebSocket返回对象,包含多个属性,然后从中解构,赋值给对应的变量,
   const { sendMessage, lastMessage, readyState } = useWebSocket(WEBSOCKET_URL, {
-    queryParams: { token: token || "" },
+    queryParams: { token: token || "" }, //结果：实际连接 URL 变成 ws://localhost:8080/ws?token=用户的token
     onOpen: () => console.log("WebSocket 连接已建立"),
     onClose: () => console.log("WebSocket 连接已断开"),
     shouldReconnect: () => true,
@@ -27,12 +28,15 @@ const ChatPage = () => {
     sendMessage(JSON.stringify({ text }));
 
   const connectionStatus = {
-    [ReadyState.CONNECTING]: { label: "连接中...", color: "warning" },
-    [ReadyState.OPEN]: { label: "已连接", color: "success" },
-    [ReadyState.CLOSING]: { label: "关闭中...", color: "warning" },
-    [ReadyState.CLOSED]: { label: "已断ក", color: "error" },
-    [ReadyState.UNINSTANTIATED]: { label: "未实例化", color: "default" },
-  }[readyState];
+    [ReadyState.CONNECTING]: { label: "连接中...", color: "warning" as const },
+    [ReadyState.OPEN]: { label: "已连接", color: "success" as const },
+    [ReadyState.CLOSING]: { label: "关闭中...", color: "warning" as const },
+    [ReadyState.CLOSED]: { label: "已断开", color: "error" as const },
+    [ReadyState.UNINSTANTIATED]: {
+      label: "未实例化",
+      color: "default" as const,
+    },
+  }[readyState]; //ReadyState是枚举变量, readyState是当前连接状态,根据 ReadyState 为 connectionStatus 赋值
 
   return (
     <Box
@@ -54,11 +58,15 @@ const ChatPage = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Chip
             label={connectionStatus.label}
-            color={connectionStatus.color as any}
+            color={connectionStatus.color}
             size="small"
           />
           <Typography variant="body1">
-            欢迎, **{currentUser?.username}**!
+            欢迎,
+            <Box component="span" sx={{ fontWeight: "bold" }}>
+              {currentUser?.username}
+            </Box>
+            !
           </Typography>
           <Button variant="outlined" size="small" onClick={logout}>
             退出
