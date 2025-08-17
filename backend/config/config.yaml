@@ -1,0 +1,10 @@
+server:
+  port: "8080"
+
+database:
+  type: "sqlite"
+  path: "chat.db"
+
+jwt:
+  secret: "a_very_secret_key_that_should_be_long_and_random"
+  expiration_hours: 72
